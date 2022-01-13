@@ -16,6 +16,7 @@ class Commandes extends Model
         'noCommande',
         'dateCommande',
         'refClient',
+        'entCli',
         'ad1',
         'ad2',
         'ad3',
@@ -30,12 +31,15 @@ class Commandes extends Model
         'BAT',
         'dateExpd',
         'envoyee',
+        'noColissimo',
+        'mpaiement',
         'momentPaiement',
         'adrSuivi',
         'transporteurClient',
         'teleprospecteur',
         'noDevis',
         'nomPdf',
+        'id_commission'
     ];
 
     public $timestamps = false;
@@ -53,6 +57,11 @@ class Commandes extends Model
         return $this->belongsTo(Teleprospecteur::class,'teleprospecteur');
     }
 
+    public function payee()
+    {
+        return $this->hasMany(Payee::class, 'noCommande');
+    }
+
     public function devis()
     {
         return $this->belongsTo(Devis::class,'noDevis');
@@ -62,10 +71,46 @@ class Commandes extends Model
         return $this->hasMany(Devis::class,'noCommande');
     }
 
-    public function scopeAValider($query)
+    public function scopeClientAValider($query)
     {
-        return $query->where('validee',0);
+        return $query->where('valClient',0);
     }
 
+    public function scopeAValider($query)
+    {
+        return $query
+            ->where('valClient',1)
+            ->where('validee',0)
+            ->where('expediee',0)
+            ->where('envoyee',0);
+    }
+
+    public function scopeAExpedier($query)
+    {
+        return $query->where('valClient',1)
+            ->where('validee',1)
+            ->where('expediee',0)
+            ->where('facturee',0);
+    }
+
+    public function scopeAFacturer($query)
+    {
+        return $query
+            ->where('valClient',1)
+            ->where('validee',1)
+            ->where('expediee', 1)
+            ->where('facturee',0)
+            ->where('envoyee', 0);
+    }
+
+    public function scopeAEnvoyer($query)
+    {
+        return $query
+            ->where('valClient',1)
+            ->where('validee',1)
+            ->where('expediee', 1)
+             ->where('facturee', 1)
+            ->where('envoyee',0);
+    }
 
 }

@@ -29,14 +29,13 @@ use App\Http\Controllers\FactureController;
 */
 
 Route::post('login', [PassportAuthController::class, 'login']);
-
 //UNIQUEMENT EN DEVELOPMENT
 //le code ci dessous permet de modifier le mot de passe d'un user
 //Route::post('login',function(Request $request){
 //    $user = App\Models\User::firstWhere('email',$request->email);
 //    $user->password = Illuminate\Support\Facades\Hash::make('12345678');
 //    $user->save();
-//} );
+//});
 //FIN UNIQUEMENT EN DEVELOPMENT
 
 
@@ -49,13 +48,20 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::prefix('commandes')->group(function () {
     Route::post('/create', [CommandesController::class, 'create']);
     Route::get('/aValider', [CommandesController::class, 'getAValider']);
+    Route::patch('/validerClient/{noCommande}', [CommandesController::class, 'validerClient']);
+    Route::get('/clientAValider', [CommandesController::class, 'getClientAValider']);
+    Route::get('/aExpedier', [CommandesController::class, 'getAExpedier']);
+    Route::get('/aFacturer', [CommandesController::class, 'getAFacturer']);
+    Route::get('/aEnvoyer', [CommandesController::class, 'getAEnvoyer']);
+    Route::get('/aPayer', [CommandesController::class, 'getAPayer']);
+    Route::patch('/{noCommande}/validerClient', [CommandesController::class, 'validerClient']);
     Route::get('/client/{client}', [CommandesController::class, 'getByClient']);
     Route::get('/', [CommandesController::class, 'getAllCommandes']);
     Route::patch('/edit/{commande}', [CommandesController::class, 'edit']);
     Route::delete('/destroy/{commande}', [CommandesController::class, 'destroy']);
     Route::patch('/nFact/{commande}', [CommandesController::class, 'genereFact']);
 
-    Route::get('/{commande}', [CommandesController::class, 'getOne']);
+    Route::get('/{noCommande}', [CommandesController::class, 'getOne']);
 
 
 
@@ -89,11 +95,10 @@ Route::prefix('client')->group(function () {
     Route::get('/{client}', [ClientController::class, 'getOne']);
     Route::get('/', [ClientController::class, 'getAllClient']);
     Route::get('/tele/{teleprospecteur}', [ClientController::class, 'getByTele']);
-    Route::post('/edit/{client}', [ClientController::class, 'edit']);
+    Route::patch('/edit/{client}', [ClientController::class, 'edit']);
     Route::delete('/destroy/{client}', [ClientController::class, 'destroy']);
     Route::get('/commande/{commande}', [ClientController::class, 'getClientByCom']);
     Route::get('/devis/{devis}', [ClientController::class, 'getClientByDevis']);
-
 
 
 });
