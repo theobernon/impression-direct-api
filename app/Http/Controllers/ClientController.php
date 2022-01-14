@@ -15,13 +15,13 @@ class ClientController extends Controller
     public function create(Request $request)
     {
         $client = Client::create([
-            'email' => $request->email,
+            'email' => $request->emailClient,
             'type' => '1',
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
+            'nom' => $request->nomClient,
+            'prenom' => $request->prenomClient,
             'societe' => $request->societe,
-            'tel' => $request->tel,
-            'mobile' => $request->mobile,
+            'tel' => $request->telClient,
+            'mobile' => $request->mobileClient,
             'fax' => $request->fax,
             'factAdr1' => $request->factAdr1,
             'factAdr2' => $request->factAdr2,
@@ -49,7 +49,7 @@ class ClientController extends Controller
     }
     public function getOne(Client $client)
     {
-        $result = DB::table('client')->where('refClient', $client->refClient)->get();
+        $result = DB::table('client')->where('refClient', $client->refClient)->get()->first();
         return response()->json($result);
     }
     public function getByTele(Teleprospecteur $teleprospecteur)
@@ -86,7 +86,7 @@ class ClientController extends Controller
     public function getAllClient()
     {
         $clients = Client::with(['pays','teleprospecteur'])
-            ->take(10)
+            ->take(100)
             ->latest('refClient')
             ->get();
 
