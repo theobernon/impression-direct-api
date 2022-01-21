@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CommandeCollection;
 use App\Http\Resources\CommandeResource;
+use App\Http\Resources\TestCollection;
 use App\Models\Commandes;
+use App\Models\Facture;
 use App\Models\Payee;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\Client;
 
@@ -45,7 +48,7 @@ class CommandesController extends Controller
             'ad1'=>$request->ad1,
             'ad2'=>$request->ad2,
             'ad3'=>$request->ad3,
-            'produits'=>$request->produitsCom,
+            'produits'=>$request->product,
             'mpaiement'=>$request->moyenPaiement,
             'mail' => $request->mailCom,
             'livCli' => $request->livCli,
@@ -59,7 +62,7 @@ class CommandesController extends Controller
             'momentPaiement' => $request->momentPaiement,
             'commentaire' => $request->commentaire,
             'transporteurClient' => $request->transporteurClient,
-            'expertise' => $request->expertiseCommande,
+            'expertise' => $request->expertise,
             'pxTransporteur' => $request->pxTransporteur,
             'noDevis' => $request->noDevisCommande,
             'refTransporteur' => $request->refTransporteurs,
@@ -71,13 +74,12 @@ class CommandesController extends Controller
 
     public function getOne(Request $request)
     {
-        $result = Commandes::with(['client','teleprospecteur'])
-            ->where('noCommande',$request->noCommande)->get()[0];
+        $result = Commandes::with(['client','teleprospecteur','commission'])
+            ->where('noCommande',$request->noCommande)->first();
 //        $result = DB::table('commande')
 //            ->where('noCommande', $request->noCommande)->get()[0];
-        return response()->json($result);
+        return response()->json($result,200);
     }
-
 
     public function getLast()
     {
@@ -99,9 +101,11 @@ class CommandesController extends Controller
 
     public function getAllCommandes()
     {
+        $now = Carbon::now();
+        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
         $result = Commandes::with(['client','teleprospecteur'])
             ->latest('noCommande')
-            ->limit(100)
+            ->whereDate('dateCommande','>=',$startDate)
             ->latest('dateCommande')
         ->get();//->lastPage();
         return response()->json($result, 200);
@@ -121,47 +125,37 @@ class CommandesController extends Controller
     public function edit(Commandes $commande, Request $request)
     {
         $result = DB::table('commande')->where('noCommande', $commande->noCommande)->update([
-            'dateCommande' => $request->dateCommande,
-            'refClient' => $request->refClient,
+            'noCommande'=>$commande->noCommande,
+            'dateCommande'=> Carbon::now()->toDateTimeString(),
+            'dateExpd'=>$request->dateExpd,
+            'refClient'=>$request->refClient,
             'entCli' => $request->entCli,
-            'ad1' => $request->adCom1,
-            'ad2' => $request->adCom2,
-            'ad3' => $request->adCom3,
+            'ad1'=>$request->ad1,
+            'ad2'=>$request->ad2,
+            'ad3'=>$request->ad3,
             'tel' => $request->tel,
+            'produits'=>$request->product,
+            'mpaiement'=>$request->moyenPaiement,
             'mail' => $request->mailCom,
             'livCli' => $request->livCli,
-            'livad1' => $request->livAdrCom1,
-            'livad2' => $request->livAdrCom2,
-            'livad3' => $request->livAdrCom3,
-            'produits' => $request->produitsCom,
-            'mpaiement' => $request->moyenPaiement,
+            'livad1' => $request->livAd1,
+            'livad2' => $request->livAd2,
+            'livad3' => $request->livAd3,
             'reduction' => $request->reduction,
             'pxttc' => $request->pxttc,
             'BAT' => $request->BAT,
-            'valClient' => $request->validationClient,
-            'validee' => $request->commandeValidee,
-            'expediee' => $request->expeditionCommande,
-            'dateExpd' => $request->dateExpedition,
-            'facturee' => $request->facturee,
-            'nomPdf' => $request->nomPdf,
-            'envoyee' => $request->commandeEnvoyee,
-            'noColissimo' => $request->noColissimo,
-            'adrSuivi' => $request->lienSuivi,
+            'adrSuivi' => $request->adrSuivi,
             'momentPaiement' => $request->momentPaiement,
-            'optionT' => $request->optionT,
-            'impressions_numeriques' => $request->impressions_numeriques,
             'commentaire' => $request->commentaire,
             'transporteurClient' => $request->transporteurClient,
-            'expertise' => $request->expertiseCommande,
+            'expertise' => $request->expertise,
             'pxTransporteur' => $request->pxTransporteur,
             'noDevis' => $request->noDevisCommande,
-            'envoiSuivi' => $request->envoiSuiviCommande,
             'refTransporteur' => $request->refTransporteurs,
-            'teleprospecteur' => $request->teleprospecteur,
             'id_commission' => $request->id_commission,
-            'id_NomPdf' => $request->id_NomPdf,
+            'id_NomPdf' => 0,
         ]);
-        return response()->json($result);
+        return response()->json($result, 200);
     }
 
     public function genereFact(Request $request, $noCommande)
@@ -244,9 +238,77 @@ class CommandesController extends Controller
         $commande = Commandes::find($request->noCommande);
         if($commande)
         {
-            $commande->valClient = 1;
-            $commande->save();
+            if ($commande->valClient == 0)
+            {
+                $commande->valClient = 1;
+                $commande->save();
+            }
+            else
+            {
+                $commande->valClient = 0;
+                $commande->save();
+            }
         }
         return response()->json($commande,200);
+    }
+
+    public function validerCommande(Request $request)
+    {
+        $commande = Commandes::find($request->noCommande);
+        if($commande)
+        {
+            if ($commande->validee == 0)
+            {
+                $commande->validee = 1;
+                $commande->save();
+            }
+            else
+            {
+                $commande->validee = 0;
+                $commande->save();
+            }
+        }
+        return response()->json($commande,200);
+    }
+
+    public function expedierCommande(Request $request)
+    {
+        $commande = Commandes::find($request->noCommande);
+        if($commande)
+        {
+            if ($commande->expediee == 0)
+            {
+                $commande->expediee = 1;
+                $commande->save();
+            }
+            else
+            {
+                $commande->expediee = 0;
+                $commande->save();
+            }
+        }
+        return response()->json($commande,200);
+    }
+
+    public function archivees()
+    {
+        $now = Carbon::now();
+        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
+        $commandes = Commandes::whereDate('dateCommande','<=',$startDate)
+            ->latest('dateCommande')
+            ->get(['noCommande','entCli','pxttc','mpaiement','dateCommande']);
+
+        return response()->json($commandes, 200);
+    }
+
+    public function archiveeSearch(Request $request)
+    {
+        $now = Carbon::now();
+        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
+        $commandes = Commandes::whereDate('dateCommande','<',$startDate)
+            ->latest('dateCommande')
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->get(['noCommande','entCli','pxttc','mpaiement','dateCommande']);
+        return response()->json($commandes, 200);
     }
 }

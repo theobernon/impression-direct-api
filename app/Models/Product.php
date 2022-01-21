@@ -16,7 +16,16 @@ class Product extends Model
         'nomProduit',
         'codePrix',
         'gauffrage',
-        'impression'
+        'impression',
+        'finition',
+        'paper',
+        'px',
+        'qte',
+        'size',
+        'color',
+        'comment',
+        'cte',
+        'pld'
     ];
 
     public $timestamps = false;

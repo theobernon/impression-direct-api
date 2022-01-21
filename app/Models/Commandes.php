@@ -35,11 +35,15 @@ class Commandes extends Model
         'mpaiement',
         'momentPaiement',
         'adrSuivi',
+        'pxTransporteur',
+        'reduction',
         'transporteurClient',
         'teleprospecteur',
         'noDevis',
         'nomPdf',
-        'id_commission'
+        'id_commission',
+        'expertise',
+        'commentaire'
     ];
 
     public $timestamps = false;
@@ -68,7 +72,7 @@ class Commandes extends Model
     }
     public function facture()
     {
-        return $this->hasMany(Devis::class,'noCommande');
+        return $this->hasMany(Facture::class,'noCommande');
     }
 
     public function scopeClientAValider($query)

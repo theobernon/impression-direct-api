@@ -36,11 +36,10 @@ class DevisLigneController extends Controller
         return response()->json($result);
     }
 
-    public function getOne(DevisLigne $devisLigne)
+    public function getOne(Request $request)
     {
-        $result = DB::table('dligne')
-            ->where('noLigne', $devisLigne->noLigne)->get();
-        return response()->json($result);
+        $result = DevisLigne::with('devis')->where('noLigne',$request->noLigne)->first();
+        return response()->json($result, 200);
     }
 
 
@@ -64,23 +63,26 @@ class DevisLigneController extends Controller
         return response()->json($result);
     }
 
-    public function edit(DevisLigne $devisLigne, Request $request)
+    public function edit(Request $request)
     {
-        $result = DB::table('dligne')->where('noLigne', $devisLigne->noLigne)->update([
+        $result = DB::table('dligne')->where('noLigne', $request->noLigne)->update([
             'noDevis' => $request->noDevis,
-            'Produit' => $request->produitDevis,
-            'TypePapier' => $request->typePapierDevis,
-            'couleurPapier' => $request->couleurPapierDevis,
-            'DimPapier' => $request->dimPapierDevis,
-            'ImpRecto' => $request->impRecto,
-            'ImpVerso' => $request->impVerso,
-            'Option' => $request->optionDevis,
-            'Finitions' => $request->finitionDevis,
-            'SousTraitant' => $request->sousTraitantDevis,
-            'ComCli' => $request->comCliDevis,
-            'ComEnt' => $request->comEntDevis,
-            'Qte' => $request->qteDevis,
-            'Prix' => $request->prixDevis
+            'Produit' => $request->Produit,
+            'TypePapier' => $request->TypePapier,
+            'couleurPapier' => $request->couleurPapier,
+            'DimPapier' => $request->DimPapier,
+            'ImpRecto' => $request->ImpRecto,
+            'ImpVerso' => $request->ImpVerso,
+            'Options' => $request->Options,
+            'Finitions' => $request->Finitions,
+            'SousTraitant' => $request->SousTraitant,
+            'Supplier'=> $request->Supplier,
+            'ComCli' => $request->ComCli,
+            'ComEnt' => $request->ComEnt,
+            'Qte' => $request->Qte,
+            'Prix' => $request->Prix,
+            'prixUnit'=>$request->prixUnit,
+            'Envoye'=> $request->envoye
         ]);
         return response()->json($result);
     }

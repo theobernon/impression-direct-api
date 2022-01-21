@@ -10,6 +10,7 @@ class Facture extends Model
     use HasFactory;
 
     protected $table='facture';
+    protected $primaryKey='noFacture';
     protected $fillable = [
         'noFacture',
         'noCommande',
@@ -17,6 +18,7 @@ class Facture extends Model
     ];
 
     public $timestamps = false;
+
 
     public function commande()
     {

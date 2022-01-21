@@ -43,7 +43,9 @@ class ProductController extends Controller
     {
         $result = DB::table('product')
             ->join('productCat', 'productCat.id', '=', 'product.productCatId')
-            ->select('product.*')->get();
+            ->select('product.*')
+            ->whereNotNull('cte')
+            ->get();
         return response()->json($result);
     }
 

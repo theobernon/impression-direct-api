@@ -46,6 +46,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::prefix('commandes')->group(function () {
+
     Route::post('/create', [CommandesController::class, 'create']);
     Route::get('/aValider', [CommandesController::class, 'getAValider']);
     Route::patch('/validerClient/{noCommande}', [CommandesController::class, 'validerClient']);
@@ -55,16 +56,17 @@ Route::prefix('commandes')->group(function () {
     Route::get('/aEnvoyer', [CommandesController::class, 'getAEnvoyer']);
     Route::get('/aPayer', [CommandesController::class, 'getAPayer']);
     Route::patch('/{noCommande}/validerClient', [CommandesController::class, 'validerClient']);
+    Route::patch('/{noCommande}/validerCommande', [CommandesController::class, 'validerCommande']);
+    Route::patch('/{noCommande}/expedierCommande', [CommandesController::class, 'expedierCommande']);
     Route::get('/client/{client}', [CommandesController::class, 'getByClient']);
     Route::get('/', [CommandesController::class, 'getAllCommandes']);
     Route::patch('/edit/{commande}', [CommandesController::class, 'edit']);
     Route::delete('/destroy/{commande}', [CommandesController::class, 'destroy']);
     Route::patch('/nFact/{commande}', [CommandesController::class, 'genereFact']);
+    Route::get('/archivees', [CommandesController::class, 'archivees']);
+    Route::post('/archivees/search', [CommandesController::class, 'archiveeSearch']);
 
     Route::get('/{noCommande}', [CommandesController::class, 'getOne']);
-
-
-
 });
 
 Route::prefix('devis')->group(function () {
@@ -82,12 +84,11 @@ Route::prefix('devis')->group(function () {
 
 Route::prefix('ligneDevis')->group(function () {
     Route::post('/create', [DevisLigneController::class, 'create']);
-    Route::get('/{devisLigne}', [DevisLigneController::class, 'getOne']);
+    Route::get('/{noLigne}', [DevisLigneController::class, 'getOne']);
     Route::get('/', [DevisLigneController::class, 'getAllDevisLigne']);
-    Route::patch('/edit/{devisLigne}', [DevisLigneController::class, 'edit']);
+    Route::post('/edit/{noLigne}', [DevisLigneController::class, 'edit']);
     Route::delete('/destroy/{devisLigne}', [DevisLigneController::class, 'destroy']);
     Route::get('/devis/{devis}', [DevisLigneController::class, 'getByDevis']);
-
 });
 
 Route::prefix('client')->group(function () {
@@ -143,6 +144,13 @@ Route::prefix('facture')->group(function () {
     Route::delete('/destroy/{commission}', [FactureController::class, 'destroy']);
 });
 
+Route::prefix('product')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ProductController::class, 'getAllProduct']);
+});
+
+Route::prefix('export')->group(function () {
+    Route::post('/', [\App\Http\Controllers\ExportController::class, 'export']);
+});
 
 /*.
 Route::middleware('auth:api')->group(function () {
