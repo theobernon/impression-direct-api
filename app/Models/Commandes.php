@@ -72,7 +72,7 @@ class Commandes extends Model
     }
     public function facture()
     {
-        return $this->hasMany(Facture::class,'noCommande');
+        return $this->hasMany(Facture::class, 'noCommande');
     }
 
     public function scopeClientAValider($query)

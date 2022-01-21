@@ -104,7 +104,6 @@ class CommandesController extends Controller
         $now = Carbon::now();
         $startDate = $now->startOfYear()->subYear()->toDateTimeString();
         $result = Commandes::with(['client','teleprospecteur'])
-            ->latest('noCommande')
             ->whereDate('dateCommande','>=',$startDate)
             ->latest('dateCommande')
         ->get();//->lastPage();
@@ -288,6 +287,36 @@ class CommandesController extends Controller
             }
         }
         return response()->json($commande,200);
+    }
+
+    public function facturee()
+    {
+        $commandes = Commandes::join('facture', 'commande.noCommande','=','facture.noCommande')
+            ->where('validee', 1)
+            ->where('valClient', 1)
+            ->where('expediee', 1)
+            ->where('facturee', 1)
+            ->where('envoyee', 1)
+            ->limit(1000)
+            ->get();
+
+        return response()->json($commandes, 200);
+    }
+
+    public function factureeSearch(Request $request)
+    {
+        $commandes = DB::table('commande')
+            ->select('commande.noCommande','facture.noFacture','entCli','pxttc','mpaiement','dateCommande','dateExpd')
+            ->join('facture','commande.noCommande','=','facture.noCommande')
+            ->where('validee', 1)
+            ->where('valClient', 1)
+            ->where('expediee', 1)
+            ->where('facturee', 1)
+            ->where('envoyee', 1)
+            ->where(DB::raw('CONCAT_WS(commande.noCommande,noFacture,entCli,pxttc,mpaiement,dateCommande,dateExpd)'), 'LIKE', "%{$request->search}%")
+            ->get();
+
+        return response()->json($commandes,200);
     }
 
     public function archivees()

@@ -30,12 +30,7 @@ class DevisController extends Controller
 
     public function getAllDevis()
     {
-        $result = DB::table('devis')
-            ->join('client','devis.refClient','=','client.refClient')
-            ->select('devis.*')
-            ->latest('noDevis')
-            ->take(10)
-            ->get();
+        $result = Devis::all();
         return response()->json($result);
     }
 

@@ -55,6 +55,8 @@ Route::prefix('commandes')->group(function () {
     Route::get('/aFacturer', [CommandesController::class, 'getAFacturer']);
     Route::get('/aEnvoyer', [CommandesController::class, 'getAEnvoyer']);
     Route::get('/aPayer', [CommandesController::class, 'getAPayer']);
+    Route::get('/facturee', [CommandesController::class, 'facturee']);
+    Route::post('/facturee/search', [CommandesController::class, 'factureeSearch']);
     Route::patch('/{noCommande}/validerClient', [CommandesController::class, 'validerClient']);
     Route::patch('/{noCommande}/validerCommande', [CommandesController::class, 'validerCommande']);
     Route::patch('/{noCommande}/expedierCommande', [CommandesController::class, 'expedierCommande']);
