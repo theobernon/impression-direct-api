@@ -14,9 +14,12 @@ class Devis extends Model
     protected $primaryKey = 'noDevis';
 
     protected $fillable = [
+        'noDevis',
         'dateDevis',
         'refClient',
         'envoye',
+        'teleprospecteur',
+        'tva',
     ];
 
     public $timestamps = false;

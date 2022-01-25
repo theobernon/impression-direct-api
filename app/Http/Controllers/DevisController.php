@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Commandes;
 use App\Models\DevisLigne;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Devis;
@@ -24,14 +26,58 @@ class DevisController extends Controller
     public function getOne(Devis $devis)
     {
         $result = DB::table('devis')
-            ->where('noDevis', $devis->noDevis)->get();
+            ->where('noDevis', $devis->noDevis)->first();
         return response()->json($result);
     }
 
-    public function getAllDevis()
+    public function getAllDevis(Request $request)
     {
-        $result = Devis::all();
-        return response()->json($result);
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Devis::all()->count();
+        $devis = Devis::skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->latest('dateDevis')
+            ->whereNotNull('refClient')
+            ->get();
+        return response()->json(['total'=>$total,'devis'=>$devis,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function search(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Devis::latest('dateDevis')
+            ->where(DB::raw('CONCAT_WS(noDevis,dateDevis,refClient)'), 'LIKE', "%{$request->search}%")
+            ->whereNotNull('refClient')
+            ->count();
+        $devis = Devis::skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->latest('refClient')
+            ->where(DB::raw('CONCAT_WS(noDevis,dateDevis,refClient)'), 'LIKE', "%{$request->search}%")
+            ->whereNotNull('refClient')
+            ->get();
+        return response()->json(['total'=>$total,'devis'=>$devis,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage], 200);
+    }
+
+    public function getDevisArchivees()
+    {
+        $now = Carbon::now();
+        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
+        $devis = Devis::where('dateDevis','<', $startDate)
+            ->latest('dateDevis')
+            ->get();
+        return response()->json($devis, 200);
+    }
+
+    public function archiveeSearch(Request $request)
+    {
+        $now = Carbon::now();
+        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
+        $devis = Devis::where('dateDevis','<=', $startDate)
+            ->where(DB::raw('CONCAT_WS(noDevis,dateDevis,refClient,tva)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json($devis, 200);
     }
 
     public function getByClient(Commandes $commande)
@@ -65,12 +111,12 @@ class DevisController extends Controller
         return response()->json($result);
 
     }
-    public function edit(Devis $devis, Request $request)
+    public function edit(Request $request)
     {
-        $result = DB::table('devis')->where('noDevis', $devis->noDevis)->update([
+        $result = DB::table('devis')->where('noDevis', $request->noDevis)->update([
             'dateDevis' => $request->dateDevis,
             'refClient' => $request->refClient,
-
+            'tva' => $request->tva
         ]);
         return response()->json($result);
     }

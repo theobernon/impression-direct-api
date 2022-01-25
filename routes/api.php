@@ -75,13 +75,12 @@ Route::prefix('devis')->group(function () {
     Route::post('/create', [DevisController::class, 'create']);
     Route::get('/{devis}', [DevisController::class, 'getOne']);
     Route::get('/', [DevisController::class, 'getAllDevis']);
+    Route::post('/search', [DevisController::class, 'search']);
     Route::get('/client/{commande}', [DevisController::class, 'getByClient']);
-    Route::patch('/edit/{devis}', [DevisController::class, 'edit']);
+    Route::post('/edit/{noDevis}', [DevisController::class, 'edit']);
     Route::delete('/destroy/{devis}', [DevisController::class, 'destroy']);
     Route::get('/commande/{commande}', [DevisController::class, 'getDevisByCom']);
     Route::get('/ligne/{devisLigne}', [DevisController::class, 'getLigne']);
-
-
 });
 
 Route::prefix('ligneDevis')->group(function () {
@@ -97,13 +96,12 @@ Route::prefix('client')->group(function () {
     Route::post('/create', [ClientController::class, 'create']);
     Route::get('/{client}', [ClientController::class, 'getOne']);
     Route::get('/', [ClientController::class, 'getAllClient']);
+    Route::post('/search', [ClientController::class, 'search']);
     Route::get('/tele/{teleprospecteur}', [ClientController::class, 'getByTele']);
     Route::patch('/edit/{client}', [ClientController::class, 'edit']);
     Route::delete('/destroy/{client}', [ClientController::class, 'destroy']);
     Route::get('/commande/{commande}', [ClientController::class, 'getClientByCom']);
     Route::get('/devis/{devis}', [ClientController::class, 'getClientByDevis']);
-
-
 });
 
 Route::prefix('teleprospecteur')->group(function () {

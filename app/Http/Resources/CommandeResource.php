@@ -3,8 +3,9 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class CommandeResource extends JsonResource
+class CommandeResource extends ResourceCollection
 {
     /**
      * Transform the resource into an array.
@@ -14,6 +15,11 @@ class CommandeResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        return [
+            'data' => $this->collection,
+            'links' => [
+                'self'=> 'link-value',
+            ]
+        ];
     }
 }

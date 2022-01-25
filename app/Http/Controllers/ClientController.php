@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 
+use App\Http\Resources\CommandeResource;
 use App\Models\Commandes;
 use App\Models\Devis;
 use App\Models\Teleprospecteur;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Client;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ClientController extends Controller
 {
@@ -83,23 +85,35 @@ class ClientController extends Controller
 
 
 
-    public function getAllClient()
+    public function getAllClient(Request $request)
     {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Client::all()->count();
         $clients = Client::with(['pays','teleprospecteur'])
-            ->take(10)
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
             ->latest('refClient')
             ->get();
 
-        return $clients;
-        /*$result = DB::table('client')
-            ->join('teleprospecteur','client.id_teleprospecteur','=','teleprospecteur.num')
-            //->join('pays','client.livPays','=','pays.id_pays')
-            ->join('pays','client.factPays','=','pays.id_pays')
-            ->select('client.*')
+        return response()->json(['total'=>$total,'clients'=>$clients,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage], 200);
+    }
+
+    public function search(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Client::with(['pays','teleprospecteur'])
             ->latest('refClient')
-            ->take(10)
+            ->where(DB::raw('CONCAT_WS(refClient,email,nom,prenom,societe,tel,mobile)'), 'LIKE', "%{$request->search}%")
+            ->count();
+        $clients = Client::with(['pays','teleprospecteur'])
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->latest('refClient')
+            ->where(DB::raw('CONCAT_WS(refClient,email,nom,prenom,societe,tel,mobile)'), 'LIKE', "%{$request->search}%")
             ->get();
-        return response()->json($result);*/
+        return response()->json(['total'=>$total,'clients'=>$clients,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage], 200);
     }
 
     public function edit(Request $request)
