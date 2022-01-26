@@ -24,7 +24,7 @@ class DevisController extends Controller
     public function getOne(Devis $devis)
     {
         $result = DB::table('devis')
-            ->where('noDevis', $devis->noDevis)->get();
+            ->where('noDevis', $devis->noDevis)->first();
         return response()->json($result);
     }
 

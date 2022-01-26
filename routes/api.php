@@ -67,6 +67,10 @@ Route::prefix('commandes')->group(function () {
     Route::post('/archivees/search', [CommandesController::class, 'archiveeSearch']);
 
     Route::get('/{noCommande}', [CommandesController::class, 'getOne']);
+
+    Route::get('/getFact/{noCommande}', [CommandesController::class, 'getFact']);
+
+
 });
 
 Route::prefix('devis')->group(function () {
@@ -96,7 +100,7 @@ Route::prefix('client')->group(function () {
     Route::get('/{client}', [ClientController::class, 'getOne']);
     Route::get('/', [ClientController::class, 'getAllClient']);
     Route::get('/tele/{teleprospecteur}', [ClientController::class, 'getByTele']);
-    Route::patch('/edit/{client}', [ClientController::class, 'edit']);
+    Route::post('/edit/{client}', [ClientController::class, 'edit']);
     Route::delete('/destroy/{client}', [ClientController::class, 'destroy']);
     Route::get('/commande/{commande}', [ClientController::class, 'getClientByCom']);
     Route::get('/devis/{devis}', [ClientController::class, 'getClientByDevis']);

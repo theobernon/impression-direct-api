@@ -81,6 +81,15 @@ class CommandesController extends Controller
         return response()->json($result,200);
     }
 
+    public function getFact(Request $request)
+    {
+        $result = Commandes::with(['client','teleprospecteur','commission'])
+            ->where('noCommande',$request->noCommande)->first();
+//        $result = DB::table('commande')
+//            ->where('noCommande', $request->noCommande)->get()[0];
+        return response()->json($result,200);
+    }
+
     public function getLast()
     {
         $result = Commandes::with(['client','teleprospecteur'])
