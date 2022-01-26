@@ -62,6 +62,7 @@ Route::prefix('commandes')->group(function () {
     Route::patch('/{noCommande}/expedierCommande', [CommandesController::class, 'expedierCommande']);
     Route::get('/client/{client}', [CommandesController::class, 'getByClient']);
     Route::get('/', [CommandesController::class, 'getAllCommandes']);
+    Route::post('/search', [CommandesController::class, 'search']);
     Route::patch('/edit/{commande}', [CommandesController::class, 'edit']);
     Route::delete('/destroy/{commande}', [CommandesController::class, 'destroy']);
     Route::patch('/nFact/{commande}', [CommandesController::class, 'genereFact']);

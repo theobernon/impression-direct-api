@@ -6,6 +6,7 @@ use App\Http\Resources\CommandeCollection;
 use App\Http\Resources\CommandeResource;
 use App\Http\Resources\TestCollection;
 use App\Models\Commandes;
+use App\Models\Devis;
 use App\Models\Facture;
 use App\Models\Payee;
 use Carbon\Carbon;
@@ -99,15 +100,32 @@ class CommandesController extends Controller
         */
     }
 
-    public function getAllCommandes()
+    public function getAllCommandes(Request $request)
     {
-        $now = Carbon::now();
-        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::all()->count();
         $result = Commandes::with(['client','teleprospecteur'])
-            ->whereDate('dateCommande','>=',$startDate)
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
             ->latest('dateCommande')
         ->get();//->lastPage();
-        return response()->json($result, 200);
+        return response()->json(['total'=>$total,'commandes'=>$result,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function search(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::latest('dateCommande')
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->count();
+        $result = Commandes::skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->latest('dateCommande')
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$result,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
 
