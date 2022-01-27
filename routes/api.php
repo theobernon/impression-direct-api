@@ -49,12 +49,18 @@ Route::prefix('commandes')->group(function () {
 
     Route::post('/create', [CommandesController::class, 'create']);
     Route::get('/aValider', [CommandesController::class, 'getAValider']);
+    Route::post('/aValider/search', [CommandesController::class, 'aValiderSearch']);
     Route::patch('/validerClient/{noCommande}', [CommandesController::class, 'validerClient']);
     Route::get('/clientAValider', [CommandesController::class, 'getClientAValider']);
+    Route::post('/clientAValider/search', [CommandesController::class, 'clientAValiderSearch']);
     Route::get('/aExpedier', [CommandesController::class, 'getAExpedier']);
+    Route::post('/aExpedier/search', [CommandesController::class, 'aExpedierSearch']);
     Route::get('/aFacturer', [CommandesController::class, 'getAFacturer']);
+    Route::post('/aFacturer/search', [CommandesController::class, 'aFacturerSearch']);
     Route::get('/aEnvoyer', [CommandesController::class, 'getAEnvoyer']);
+    Route::post('/aEnvoyer/search', [CommandesController::class, 'aEnvoyerSearch']);
     Route::get('/aPayer', [CommandesController::class, 'getAPayer']);
+    Route::post('/aPayer/search', [CommandesController::class, 'aPayerSearch']);
     Route::get('/facturee', [CommandesController::class, 'facturee']);
     Route::post('/facturee/search', [CommandesController::class, 'factureeSearch']);
     Route::patch('/{noCommande}/validerClient', [CommandesController::class, 'validerClient']);

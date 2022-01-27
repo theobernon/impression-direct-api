@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -75,31 +76,44 @@ class Commandes extends Model
         return $this->hasMany(Facture::class, 'noCommande');
     }
 
-    public function scopeClientAValider($query)
-    {
-        return $query->where('valClient',0);
-    }
-
-    public function scopeAValider($query)
+    public function scopeClientAValider($query, $page, $perpage)
     {
         return $query
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->where('valClient',0)
+            ->where('validee',0)
+            ->where('expediee',0)
+            ->where('envoyee',0);
+    }
+
+    public function scopeAValider($query, $page, $perpage)
+    {
+        return $query
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
             ->where('valClient',1)
             ->where('validee',0)
             ->where('expediee',0)
             ->where('envoyee',0);
     }
 
-    public function scopeAExpedier($query)
+    public function scopeAExpedier($query, $page, $perpage)
     {
-        return $query->where('valClient',1)
+        return $query
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->where('valClient',1)
             ->where('validee',1)
             ->where('expediee',0)
             ->where('facturee',0);
     }
 
-    public function scopeAFacturer($query)
+    public function scopeAFacturer($query, $page, $perpage)
     {
         return $query
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
             ->where('valClient',1)
             ->where('validee',1)
             ->where('expediee', 1)
@@ -107,9 +121,11 @@ class Commandes extends Model
             ->where('envoyee', 0);
     }
 
-    public function scopeAEnvoyer($query)
+    public function scopeAEnvoyer($query, $page, $perpage)
     {
         return $query
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
             ->where('valClient',1)
             ->where('validee',1)
             ->where('expediee', 1)

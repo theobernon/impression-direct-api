@@ -220,34 +220,211 @@ class CommandesController extends Controller
         return response()->json($commande->delete());
     }
 
-    public function getAValider()
+    public function getAValider(Request $request)
     {
-        return response()->json(\App\Models\Commandes::aValider()->get());
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where('validee',0)
+            ->where('expediee',0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aValider($page, $perpage)->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
-    public function getClientAValider()
+    public function aValiderSearch(Request  $request)
     {
-        return response()->json(Commandes::clientAValider()->get());
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd)'), 'LIKE', "%{$request->search}%")
+            ->where('validee',0)
+            ->where('expediee',0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aValider($page, $perpage)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
-    public function getAExpedier()
+    public function getClientAValider(Request $request)
     {
-        return response()->json(Commandes::aExpedier()->get());
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',0)
+            ->where('validee',0)
+            ->where('expediee',0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::clientAValider($page, $perpage)->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
-    public function getAFacturer()
+    public function clientAValiderSearch(Request $request)
     {
-        return response()->json(Commandes::aFacturer()->get());
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',0)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->where('validee',0)
+            ->where('expediee',0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::clientAValider($page, $perpage)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
-    public function getAEnvoyer()
+    public function getAExpedier(Request $request)
     {
-        return response()->json(Commandes::aEnvoyer()->get());
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where('validee',1)
+            ->where('expediee',0)
+            ->where('facturee', 0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aExpedier($page, $perpage)->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
-    public function getAPayer()
+    public function aExpedierSearch(Request $request)
     {
-        return response()->json(Payee::aPayer()->has('commande')->get(), 200);
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->where('validee',1)
+            ->where('expediee',0)
+            ->where('facturee', 0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aExpedier($page, $perpage)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function getAFacturer(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aFacturer($page, $perpage)->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function aFacturerSearch(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',0)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aFacturer($page, $perpage)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function getAEnvoyer(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',1)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aEnvoyer($page, $perpage)->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function aEnvoyerSearch(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::where('valClient',1)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd,nomPdf)'), 'LIKE', "%{$request->search}%")
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',1)
+            ->where('envoyee',0)
+            ->count();
+        $commandes = Commandes::aEnvoyer($page, $perpage)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExped,nomPdf)'), 'LIKE', "%{$request->search}%")
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function getAPayer(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = DB::table('payee')
+            ->join('commande','payee.id_commande', '=', 'commande.noCommande')
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',1)
+            ->where('envoyee',1)
+            ->whereNotNull('noCommande')
+            ->where('payee','=','non')
+            ->count();
+        $commandes = DB::table('payee')
+            ->join('commande','payee.id_commande', '=', 'commande.noCommande')
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->latest('dateCommande')
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',1)
+            ->where('envoyee',1)
+            ->where('payee','=','non')
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
+    }
+
+    public function aPayerSearch(Request $request)
+    {
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = DB::table('payee')
+            ->join('commande','payee.id_commande', '=', 'commande.noCommande')
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',1)
+            ->where('envoyee',1)
+            ->whereNotNull('noCommande')
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,mpaiement,dateExpd,nomPdf)'), 'LIKE', "%{$request->search}%")
+            ->where('payee','=','non')
+            ->count();
+        $commandes = DB::table('payee')
+            ->join('commande','payee.id_commande', '=', 'commande.noCommande')
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->latest('dateCommande')
+            ->where('validee',1)
+            ->where('expediee',1)
+            ->where('facturee',1)
+            ->where('envoyee',1)
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd,mpaiement,nomPdf)'), 'LIKE', "%{$request->search}%")
+            ->where('payee','=','non')
+            ->get();
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
     public function validerClient(Request $request)
@@ -307,55 +484,55 @@ class CommandesController extends Controller
         return response()->json($commande,200);
     }
 
-    public function facturee()
+    public function facturee(Request $request)
     {
-        $commandes = Commandes::join('facture', 'commande.noCommande','=','facture.noCommande')
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+        $total = Commandes::join('facture', 'commande.noCommande','=','facture.noCommande')
             ->where('validee', 1)
             ->where('valClient', 1)
             ->where('expediee', 1)
             ->where('facturee', 1)
             ->where('envoyee', 1)
-            ->limit(1000)
+            ->count();
+        $commandes = Commandes::join('facture', 'commande.noCommande','=','facture.noCommande')
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+            ->where('validee', 1)
+            ->where('valClient', 1)
+            ->where('expediee', 1)
+            ->where('facturee', 1)
+            ->where('envoyee', 1)
             ->get();
 
-        return response()->json($commandes, 200);
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
     public function factureeSearch(Request $request)
     {
-        $commandes = DB::table('commande')
-            ->select('commande.noCommande','facture.noFacture','entCli','pxttc','mpaiement','dateCommande','dateExpd')
-            ->join('facture','commande.noCommande','=','facture.noCommande')
+        $page = (int)$request->query('page', 1);
+        $perpage = (int)$request->query('perpage', 10);
+
+        $total = Commandes::with('facture')
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd,nomPdf)'), 'LIKE', "%{$request->search}%")
             ->where('validee', 1)
             ->where('valClient', 1)
             ->where('expediee', 1)
             ->where('facturee', 1)
             ->where('envoyee', 1)
-            ->where(DB::raw('CONCAT_WS(commande.noCommande,noFacture,entCli,pxttc,mpaiement,dateCommande,dateExpd)'), 'LIKE', "%{$request->search}%")
-            ->get();
+            ->count();
 
-        return response()->json($commandes,200);
-    }
+        $commandes = Commandes::with('facture')
+            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd,nomPdf)'), 'LIKE', "%{$request->search}%")
+            ->where('validee', 1)
+            ->where('valClient', 1)
+            ->where('expediee', 1)
+            ->where('facturee', 1)
+            ->where('envoyee', 1)
+            ->skip(($page-1)*$perpage)
+            ->take($perpage)
+        ->get();
 
-    public function archivees()
-    {
-        $now = Carbon::now();
-        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
-        $commandes = Commandes::whereDate('dateCommande','<=',$startDate)
-            ->latest('dateCommande')
-            ->get(['noCommande','entCli','pxttc','mpaiement','dateCommande']);
-
-        return response()->json($commandes, 200);
-    }
-
-    public function archiveeSearch(Request $request)
-    {
-        $now = Carbon::now();
-        $startDate = $now->startOfYear()->subYear()->toDateTimeString();
-        $commandes = Commandes::whereDate('dateCommande','<',$startDate)
-            ->latest('dateCommande')
-            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
-            ->get(['noCommande','entCli','pxttc','mpaiement','dateCommande']);
-        return response()->json($commandes, 200);
+        return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 }

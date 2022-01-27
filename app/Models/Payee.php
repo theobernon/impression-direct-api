@@ -26,17 +26,6 @@ class Payee extends Model
 
     public function commande()
     {
-        return $this->belongsTo(Commandes::class, 'id_commande', 'noCommande');
-    }
-
-    public function scopeAPayer($query)
-    {
-        return $query->with(['commande' => function($q) {
-            $q->where('valClient',1)
-                ->where('validee',1)
-                ->where('expediee',1)
-                ->where('facturee',1)
-                ->where('envoyee',1);
-        }])->where('payee', 'non');
+        return $this->belongsTo(Commandes::class, 'id_commande');
     }
 }

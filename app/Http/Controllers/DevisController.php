@@ -34,7 +34,8 @@ class DevisController extends Controller
     {
         $page = (int)$request->query('page', 1);
         $perpage = (int)$request->query('perpage', 10);
-        $total = Devis::all()->count();
+        $total = Devis::latest('dateDevis')
+            ->whereNotNull('refClient')->count();
         $devis = Devis::skip(($page-1)*$perpage)
             ->take($perpage)
             ->latest('dateDevis')
