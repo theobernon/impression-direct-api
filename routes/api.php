@@ -76,6 +76,7 @@ Route::prefix('commandes')->group(function () {
     Route::post('/archivees/search', [CommandesController::class, 'archiveeSearch']);
 
     Route::get('/{noCommande}', [CommandesController::class, 'getOne']);
+    Route::get('/getFact/{noCommande}', [CommandesController::class, 'getFact']);
 });
 
 Route::prefix('devis')->group(function () {
