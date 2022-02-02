@@ -117,10 +117,10 @@ class CommandesController extends Controller
     {
         $page = (int)$request->query('page', 1);
         $perpage = (int)$request->query('perpage', 10);
-        $total = Commandes::latest('dateCommande')
-            ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+        $total = Commandes::where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
             ->count();
-        $result = Commandes::skip(($page-1)*$perpage)
+        $result = Commandes::with(['client','teleprospecteur'])
+            ->skip(($page-1)*$perpage)
             ->take($perpage)
             ->latest('dateCommande')
             ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
@@ -229,7 +229,9 @@ class CommandesController extends Controller
             ->where('expediee',0)
             ->where('envoyee',0)
             ->count();
-        $commandes = Commandes::aValider($page, $perpage)->get();
+        $commandes = Commandes::aValider($page, $perpage)
+            ->latest('dateCommande')
+            ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
@@ -245,6 +247,7 @@ class CommandesController extends Controller
             ->count();
         $commandes = Commandes::aValider($page, $perpage)
             ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExpd)'), 'LIKE', "%{$request->search}%")
+            ->latest('dateCommande')
             ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
@@ -258,7 +261,9 @@ class CommandesController extends Controller
             ->where('expediee',0)
             ->where('envoyee',0)
             ->count();
-        $commandes = Commandes::clientAValider($page, $perpage)->get();
+        $commandes = Commandes::clientAValider($page, $perpage)
+            ->latest('dateCommande')
+            ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
@@ -274,6 +279,7 @@ class CommandesController extends Controller
             ->count();
         $commandes = Commandes::clientAValider($page, $perpage)
             ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->latest('dateCommande')
             ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
@@ -288,7 +294,9 @@ class CommandesController extends Controller
             ->where('facturee', 0)
             ->where('envoyee',0)
             ->count();
-        $commandes = Commandes::aExpedier($page, $perpage)->get();
+        $commandes = Commandes::aExpedier($page, $perpage)
+            ->latest('dateCommande')
+            ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
@@ -305,6 +313,7 @@ class CommandesController extends Controller
             ->count();
         $commandes = Commandes::aExpedier($page, $perpage)
             ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->latest('dateCommande')
             ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
@@ -319,7 +328,9 @@ class CommandesController extends Controller
             ->where('facturee',0)
             ->where('envoyee',0)
             ->count();
-        $commandes = Commandes::aFacturer($page, $perpage)->get();
+        $commandes = Commandes::aFacturer($page, $perpage)
+            ->latest('dateCommande')
+            ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
@@ -336,6 +347,7 @@ class CommandesController extends Controller
             ->count();
         $commandes = Commandes::aFacturer($page, $perpage)
             ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande)'), 'LIKE', "%{$request->search}%")
+            ->latest('dateCommande')
             ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
@@ -350,7 +362,9 @@ class CommandesController extends Controller
             ->where('facturee',1)
             ->where('envoyee',0)
             ->count();
-        $commandes = Commandes::aEnvoyer($page, $perpage)->get();
+        $commandes = Commandes::aEnvoyer($page, $perpage)
+            ->latest('dateCommande')
+            ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
 
@@ -367,6 +381,7 @@ class CommandesController extends Controller
             ->count();
         $commandes = Commandes::aEnvoyer($page, $perpage)
             ->where(DB::raw('CONCAT_WS(noCommande,entCli,pxttc,mpaiement,dateCommande,dateExped,nomPdf)'), 'LIKE', "%{$request->search}%")
+            ->latest('dateCommande')
             ->get();
         return response()->json(['total'=>$total,'commandes'=>$commandes,'current_page'=>$page,'total_page'=>ceil($total/$perpage),'perpage'=>$perpage]);
     }
