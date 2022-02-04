@@ -18,7 +18,7 @@ class ClientController extends Controller
     {
         $client = Client::create([
             'email' => $request->email,
-            'type' => '1',
+            'typeClient' => $request->typeClient,
             'nom' => $request->nom,
             'prenom' => $request->prenom,
             'societe' => $request->societe,

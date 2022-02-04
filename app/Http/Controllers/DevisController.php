@@ -140,6 +140,15 @@ class DevisController extends Controller
         //dd($result);
         return response()->json($result);
     }
+
+    public function getLigne(Request $request)
+    {
+        $lignes = DevisLigne::where('noDevis',$request->noDevis)
+            ->get();
+        $sum = $lignes->sum('Prix');
+        return response()->json([$lignes,'total'=>$sum], 200);
+    }
+
     public function destroy(Devis $devis)
     {
         return response()->json($devis->delete());

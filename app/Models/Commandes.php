@@ -43,6 +43,7 @@ class Commandes extends Model
         'noDevis',
         'nomPdf',
         'id_commission',
+        'id_NomPdf',
         'expertise',
         'commentaire'
     ];

@@ -87,7 +87,7 @@ Route::prefix('devis')->group(function () {
     Route::post('/edit/{noDevis}', [DevisController::class, 'edit']);
     Route::delete('/destroy/{devis}', [DevisController::class, 'destroy']);
     Route::get('/commande/{commande}', [DevisController::class, 'getDevisByCom']);
-    Route::get('/ligne/{devisLigne}', [DevisController::class, 'getLigne']);
+    Route::get('/{noDevis}/ligne', [DevisController::class, 'getLigne']);
 });
 
 Route::prefix('ligneDevis')->group(function () {
